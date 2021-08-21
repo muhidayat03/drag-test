@@ -152,6 +152,10 @@ function App() {
     }
   };
 
+  const handleScroll = (e) => {
+    console.log("e", e.target.scrollTop);
+  };
+
   return (
     <div className="App">
       <div style={{ padding: 20 }} className="testing">
@@ -169,6 +173,7 @@ function App() {
         onTouchStart={onTouchStart}
       >
         <div
+          onScroll={handleScroll}
           onTouchStart={onListTouch}
           onTouchMove={onListTouchMove}
           className={`list-container ${

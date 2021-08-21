@@ -19,7 +19,6 @@ body,
 .app {
   height: 100%;
   width: 100%;
-  overscroll-behavior-y: none;
 }
 
 html {
@@ -29,6 +28,7 @@ html {
 body {
   overflow: auto;
   position: relative;
+  -webkit-overflow-scrolling: touch;
 }
 
 .App {
@@ -72,7 +72,6 @@ body {
   position: relative;
   z-index: 10;
   overflow-y: auto;
-  overscroll-behavior-y: none;
 }
 
 .list-container.dragging {
