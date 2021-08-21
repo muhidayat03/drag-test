@@ -94,7 +94,7 @@ function App() {
         <button onClick={() => setItem(20)}>20 item</button>
       </div>
       <div
-        className="wrapper"
+        className={`wrapper ${dragging ? "aaa" : ""}`}
         ref={refTab}
         style={{
           height: window.innerHeight - top,
