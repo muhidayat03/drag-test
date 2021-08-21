@@ -39,6 +39,7 @@ function App() {
     if (!dragging) {
       if (mentok && scrollDown) {
         console.log("mentok");
+        setCursorTop(cursorTop);
         return setDragging(true);
       }
     } else {
