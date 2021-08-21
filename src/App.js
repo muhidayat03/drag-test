@@ -57,7 +57,7 @@ function App() {
     const currentTop = currentTopRef.current;
 
     const update = top + currentTop;
-    if (update >= defaultTop) {
+    if (update >= defaultTop || update <= fullTop) {
       return;
     }
     setTopRef(top + currentTop);
