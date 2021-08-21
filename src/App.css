@@ -55,6 +55,9 @@ body {
   width: 100%;
   border-radius: 16px 16px 0px 0px;
   padding: 20px;
+  overscroll-behavior-y: none;
+  -ms-touch-action: none;
+  touch-action: none;
 }
 
 .list {
@@ -68,11 +71,11 @@ body {
   position: relative;
   z-index: 10;
   overflow-y: auto;
+  overscroll-behavior-y: none;
 }
 
 .list-container.dragging {
   overflow-y: hidden;
-  overscroll-behavior-y: none;
   -ms-touch-action: none;
   touch-action: none;
 }
