@@ -78,4 +78,5 @@ body {
   overflow-y: hidden;
   -ms-touch-action: none;
   touch-action: none;
+  background-color: red;
 }

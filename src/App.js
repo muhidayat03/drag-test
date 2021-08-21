@@ -1,159 +1,89 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 
-const fullTop = (window.innerHeight * 10) / 100;
-const fullTopLimit = (window.innerHeight * 20) / 100;
-const defaultTop = (window.innerHeight * 40) / 100;
+const fullTop = Math.floor((window.innerHeight * 10) / 100);
+const defaultTop = Math.floor((window.innerHeight * 40) / 100);
 
 function App() {
   const refTab = useRef(null);
 
   const [item, setItem] = useState(20);
-
-  const [top, setTop] = useState(defaultTop);
-  const [position, setPosition] = useState(0);
+  const [top, setTop] = useState(fullTop);
   const [dragging, setDragging] = useState(false);
-
-  const draggingRef = useRef(null);
-  const setDraggingpRef = (data) => {
-    draggingRef.current = data;
-    setDragging(data);
-  };
-  const topRef = useRef(null);
-  const setTopRef = (data) => {
-    topRef.current = data;
-    setTop(data);
-  };
-
-  const currentTopRef = useRef(null);
-  const setCurrentTopRef = (data) => {
-    currentTopRef.current = data;
-    // setCurrentTop(data);
-  };
+  const [selisih, setSelisih] = useState(defaultTop);
+  const [isFullHeight, setIsFUllHeight] = useState(false);
+  const [cursorTop, setCursorTop] = useState(0);
 
   const listRef = useRef(null);
-
-  const checkTop = () => {
-    console.log(listRef?.current?.getBoundingClientRect()?.top);
-    console.log(fullTop - 20);
-  };
 
   const renderList = () =>
     Array.from(Array(item), (_, key) => <div className="list" key={key} />);
 
-  const onMouseMove = useCallback((e) => {
-    if (!draggingRef?.current) return;
-    if (e.pageY - 10 >= 100) {
-      setTopRef(e.pageY - 10);
-    }
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
+  const onTouchMove = (e) => {
+    // const scrollPosition = Math.floor(
+    //   listRef.current.getBoundingClientRect().top - 20
+    // );
+    // const mentok = fullTop === scrollPosition;
 
-  const onTouchMove = useCallback((e) => {
-    if (!draggingRef?.current) return;
+    // const scrollDown = cursorTop < e.changedTouches[0].pageY;
 
-    const top = e.changedTouches[0].pageY || 0;
-    const currentTop = currentTopRef.current;
+    // if (mentok && scrollDown) {
+    //   return setDragging(true);
+    // }
+    const scrollPosition = Math.floor(
+      listRef.current.getBoundingClientRect().top - 20
+    );
+    const mentok = fullTop === scrollPosition;
+    const scrollDown = cursorTop < e.changedTouches[0].pageY;
 
-    const update = top + currentTop;
-    if (update >= defaultTop || update <= fullTop) {
-      return;
-    }
-    setTopRef(top + currentTop);
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
-
-  // const onScroll = (e) => {
-  //   console.log(e.target.scrollTop);
-  //   console.log(listRef.current.getBoundingClientRect().top);
-  //   listRef.current.scrollTop = 100;
-  // };
-  const onMouseUp = useCallback((e) => {
-    const currnetTop = topRef.current || 0;
-
-    console.log("up");
-    console.log({ currnetTop });
-    if (currnetTop <= fullTopLimit) {
-      setTopRef(fullTop);
+    if (!dragging) {
+      if (mentok && scrollDown) {
+        console.log("mentok");
+        return setDragging(true);
+      }
     } else {
-      setTopRef(defaultTop);
+      const top = e.changedTouches[0].pageY || 0;
+      const updateTop = top + selisih;
+      if (updateTop > defaultTop || updateTop < fullTop) {
+        return;
+      }
+      setTop(updateTop);
     }
+  };
 
-    setDraggingpRef(false);
+  const onTouchEnd = () => {
+    setDragging(false);
 
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
-
-  // const onMouseDown = (e) => {
-  //   if (e.button !== 0) return;
-
-  //   const positionTop = refTab.current.getBoundingClientRect().top || 0;
-  //   setCurrentTopRef(positionTop - e.pageY);
-  //   setDraggingpRef(true);
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  // };
+    if (isFullHeight) {
+      if (top >= fullTop + 40) {
+        return setTop(defaultTop);
+      }
+      return setTop(fullTop);
+    }
+    if (top <= defaultTop - 40) {
+      return setTop(fullTop);
+    }
+    return setTop(defaultTop);
+  };
 
   const onTouchStart = (e) => {
-    const positionTop = refTab.current.getBoundingClientRect().top || 0;
-
-    const modalTopRound = Math.floor(positionTop);
+    const elementTop = refTab.current.getBoundingClientRect().top || 0;
+    const modalTopRound = Math.floor(elementTop);
     const isFullHeight = modalTopRound <= fullTop;
+    const cursorTop = e.changedTouches[0].pageY || 0;
+    setSelisih(elementTop - cursorTop);
+
+    setCursorTop(cursorTop);
+
+    if (isFullHeight) {
+      setIsFUllHeight(true);
+    } else {
+      setIsFUllHeight(false);
+    }
     if (isFullHeight && e.target !== e.currentTarget) {
       return;
     }
-
-    const currentTop = e.changedTouches[0].pageY || 0;
-
-    console.log({ positionTop });
-    console.log({ currentTop });
-
-    setCurrentTopRef(positionTop - currentTop);
-    setDraggingpRef(true);
-  };
-
-  useEffect(() => {
-    console.log(dragging);
-    if (dragging) {
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("touchmove", onTouchMove);
-      document.addEventListener("touchend", onMouseUp);
-      document.addEventListener("mouseup", onMouseUp);
-    } else {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onMouseUp);
-      document.removeEventListener("mouseup", onMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener("touchmove", onMouseMove);
-      document.removeEventListener("touchend", onMouseUp);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-  }, [dragging, onMouseMove, onMouseUp, onTouchMove]);
-
-  const onListTouch = (e) => {
-    const currentTop = e.changedTouches[0].pageY || 0;
-    setPosition(currentTop);
-  };
-
-  const onListTouchMove = (e) => {
-    const scrollPosition = listRef.current.getBoundingClientRect().top;
-    const currentTop = e.changedTouches[0].pageY || 0;
-    if (position < currentTop && !dragging) {
-      if (Math.ceil(scrollPosition - 20) === Math.ceil(fullTop)) {
-        setCurrentTopRef(scrollPosition - currentTop);
-        setDraggingpRef(true);
-      }
-    }
-  };
-
-  const handleScroll = (e) => {
-    console.log("e", e.target.scrollTop);
+    setDragging(true);
   };
 
   return (
@@ -161,7 +91,6 @@ function App() {
       <div style={{ padding: 20 }} className="testing">
         <button onClick={() => setItem(4)}>4 item</button>
         <button onClick={() => setItem(20)}>20 item</button>
-        <button onClick={checkTop}>check top</button>
       </div>
       <div
         className="wrapper"
@@ -169,13 +98,11 @@ function App() {
         style={{
           height: window.innerHeight - top,
         }}
-        // onMouseDown={onMouseDown}
         onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
         <div
-          onScroll={handleScroll}
-          onTouchStart={onListTouch}
-          onTouchMove={onListTouchMove}
           className={`list-container ${
             (dragging || top >= defaultTop) && "dragging"
           }`}
