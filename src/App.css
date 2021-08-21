@@ -72,4 +72,7 @@ body {
 
 .list-container.dragging {
   overflow-y: hidden;
+  overscroll-behavior-y: none;
+  -ms-touch-action: none;
+  touch-action: none;
 }
