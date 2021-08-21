@@ -65,6 +65,8 @@ body,
 }
 
 .list-container.dragging {
-  overflow-y: unset;
-  /* background-color: red; */
+  overflow-y: hidden;
+  -ms-touch-action: none;
+  touch-action: none;
+  background-color: red;
 }
