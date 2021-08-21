@@ -11,6 +11,7 @@ function App() {
   const [item, setItem] = useState(20);
 
   const [top, setTop] = useState(defaultTop);
+  // const [_, setCurrentTop] = useState(0);
   const [dragging, setDragging] = useState(false);
 
   const draggingRef = useRef(null);
@@ -22,6 +23,19 @@ function App() {
   const setTopRef = (data) => {
     topRef.current = data;
     setTop(data);
+  };
+
+  const currentTopRef = useRef(null);
+  const setCurrentTopRef = (data) => {
+    currentTopRef.current = data;
+    // setCurrentTop(data);
+  };
+
+  const listRef = useRef(null);
+
+  const checkTop = () => {
+    console.log(listRef?.current?.getBoundingClientRect()?.top);
+    console.log(fullTop - 20);
   };
 
   const renderList = () =>
@@ -38,14 +52,24 @@ function App() {
 
   const onTouchMove = useCallback((e) => {
     if (!draggingRef?.current) return;
+
     const top = e.changedTouches[0].pageY || 0;
-    if (top - 10 >= 100) {
-      setTopRef(top - 10 - 10);
+    const currentTop = currentTopRef.current;
+
+    const update = top + currentTop;
+    if (update >= defaultTop) {
+      return;
     }
+    setTopRef(top + currentTop);
     e.stopPropagation();
     e.preventDefault();
   }, []);
 
+  // const onScroll = (e) => {
+  //   console.log(e.target.scrollTop);
+  //   console.log(listRef.current.getBoundingClientRect().top);
+  //   listRef.current.scrollTop = 100;
+  // };
   const onMouseUp = useCallback((e) => {
     const currnetTop = topRef.current || 0;
     if (currnetTop <= fullTopLimit) {
@@ -53,24 +77,39 @@ function App() {
     } else {
       setTopRef(defaultTop);
     }
+
     setDraggingpRef(false);
+
     e.stopPropagation();
     e.preventDefault();
   }, []);
 
-  const onMouseDown = useCallback((e) => {
-    // only left mouse button
+  const onMouseDown = (e) => {
     if (e.button !== 0) return;
-    setDraggingpRef(true);
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
 
-  const onTouchStart = () => {
+    const positionTop = refTab.current.getBoundingClientRect().top || 0;
+    setCurrentTopRef(positionTop - e.pageY);
+    setDraggingpRef(true);
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const onTouchStart = (e) => {
+    const positionTop = refTab.current.getBoundingClientRect().top || 0;
+
+    // const modalTopRound = Math.floor(positionTop);
+    // const isFullHeight = modalTopRound <= fullTop;
+    // if (isFullHeight && e.target !== e.currentTarget) {
+    //   return;
+    // }
+
+    const currentTop = e.changedTouches[0].pageY || 0;
+    setCurrentTopRef(positionTop - currentTop);
     setDraggingpRef(true);
   };
 
   useEffect(() => {
+    console.log(dragging);
     if (dragging) {
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("touchmove", onTouchMove);
@@ -96,6 +135,7 @@ function App() {
       <div style={{ padding: 20 }}>
         <button onClick={() => setItem(4)}>4 item</button>
         <button onClick={() => setItem(20)}>20 item</button>
+        <button onClick={checkTop}>check top</button>
       </div>
       <div
         className="wrapper"
@@ -103,13 +143,17 @@ function App() {
         style={{
           height: window.innerHeight - top,
         }}
+        onMouseDown={onMouseDown}
+        onTouchStart={onTouchStart}
       >
         <div
-          className="touch-item"
-          onMouseDown={onMouseDown}
-          onTouchStart={onTouchStart}
-        />
-        <div className="list-container">{renderList()}</div>
+          // onScroll={onScroll}
+          className={`list-container ${
+            (dragging || top >= defaultTop) && "dragging"
+          }`}
+        >
+          <div ref={listRef}>{renderList()}</div>
+        </div>
       </div>
     </div>
   );
