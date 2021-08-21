@@ -56,12 +56,12 @@ function App() {
     setDragging(false);
 
     if (isFullHeight) {
-      if (top >= fullTop + 40) {
+      if (top >= fullTop + 10) {
         return setTop(defaultTop);
       }
       return setTop(fullTop);
     }
-    if (top <= defaultTop - 40) {
+    if (top <= defaultTop - 10) {
       return setTop(fullTop);
     }
     return setTop(defaultTop);
