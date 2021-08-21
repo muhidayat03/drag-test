@@ -60,6 +60,7 @@ body {
   -ms-touch-action: none;
   touch-action: none;
   transition: 0.3s ease;
+  max-width: 800px;
 }
 
 .aaa {

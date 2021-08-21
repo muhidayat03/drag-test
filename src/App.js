@@ -8,7 +8,7 @@ function App() {
   const refTab = useRef(null);
 
   const [item, setItem] = useState(20);
-  const [top, setTop] = useState(fullTop);
+  const [top, setTop] = useState(defaultTop);
   const [dragging, setDragging] = useState(false);
   const [selisih, setSelisih] = useState(defaultTop);
   const [isFullHeight, setIsFUllHeight] = useState(false);
@@ -20,21 +20,17 @@ function App() {
     Array.from(Array(item), (_, key) => <div className="list" key={key} />);
 
   const onTouchMove = (e) => {
-    // const scrollPosition = Math.floor(
-    //   listRef.current.getBoundingClientRect().top - 20
-    // );
-    // const mentok = fullTop === scrollPosition;
-
-    // const scrollDown = cursorTop < e.changedTouches[0].pageY;
-
-    // if (mentok && scrollDown) {
-    //   return setDragging(true);
-    // }
+    let pageY;
+    if (e.type === "mousemove") {
+      pageY = e.pageY;
+    } else {
+      pageY = e.changedTouches[0].pageY || 0;
+    }
     const scrollPosition = Math.floor(
       listRef.current.getBoundingClientRect().top - 20
     );
     const mentok = fullTop === scrollPosition;
-    const scrollDown = cursorTop < e.changedTouches[0].pageY;
+    const scrollDown = cursorTop < pageY;
 
     if (!dragging) {
       if (mentok && scrollDown) {
@@ -43,7 +39,7 @@ function App() {
         return setDragging(true);
       }
     } else {
-      const top = e.changedTouches[0].pageY || 0;
+      const top = pageY;
       const updateTop = top + selisih;
       if (updateTop > defaultTop || updateTop < fullTop) {
         return;
@@ -68,13 +64,18 @@ function App() {
   };
 
   const onTouchStart = (e) => {
+    let pageY;
+    if (e.type === "mousedown") {
+      pageY = e.pageY;
+    } else {
+      pageY = e.changedTouches[0].pageY || 0;
+    }
+    console.log(e);
     const elementTop = refTab.current.getBoundingClientRect().top || 0;
     const modalTopRound = Math.floor(elementTop);
     const isFullHeight = modalTopRound <= fullTop;
-    const cursorTop = e.changedTouches[0].pageY || 0;
-    setSelisih(elementTop - cursorTop);
-
-    setCursorTop(cursorTop);
+    setSelisih(elementTop - pageY);
+    setCursorTop(pageY);
 
     if (isFullHeight) {
       setIsFUllHeight(true);
@@ -102,6 +103,9 @@ function App() {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onMouseDown={onTouchStart}
+        onMouseUp={onTouchEnd}
+        onMouseMove={onTouchMove}
       >
         <div
           className={`list-container ${
