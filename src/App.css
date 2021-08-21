@@ -65,6 +65,6 @@ body,
 }
 
 .list-container.dragging {
-  overflow-y: hidden;
+  overflow-y: unset;
   /* background-color: red; */
 }
